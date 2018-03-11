@@ -201,12 +201,6 @@ int main() {
   	map_waypoints_dy.push_back(d_y);
   }
 
-  int lane=1;
-
-  //reference velocity in mph
-  double ref_vel = 49.5;
-
-
   h.onMessage([&map_waypoints_x,&map_waypoints_y,&map_waypoints_s,&map_waypoints_dx,&map_waypoints_dy](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
                      uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
@@ -243,6 +237,12 @@ int main() {
 
           	// Sensor Fusion Data, a list of all other cars on the same side of the road.
           	auto sensor_fusion = j[1]["sensor_fusion"];
+
+
+            int lane=1;
+
+            //reference velocity in mph
+            double ref_vel = 49.5;
 
             int prev_size = previous_path_x.size();
 
