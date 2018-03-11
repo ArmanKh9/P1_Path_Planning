@@ -201,6 +201,13 @@ int main() {
   	map_waypoints_dy.push_back(d_y);
   }
 
+
+  int lane=1;
+
+  //reference velocity in mph
+  double ref_vel = 49.5;
+
+
   h.onMessage([&map_waypoints_x,&map_waypoints_y,&map_waypoints_s,&map_waypoints_dx,&map_waypoints_dy](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
                      uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
@@ -238,12 +245,6 @@ int main() {
           	// Sensor Fusion Data, a list of all other cars on the same side of the road.
           	auto sensor_fusion = j[1]["sensor_fusion"];
 
-
-            int lane=1;
-
-            //reference velocity in mph
-            double ref_vel = 49.5;
-
             int prev_size = previous_path_x.size();
 
             // create a list of widely (x,y) points that are evenly spaced at 30 m
@@ -258,8 +259,7 @@ int main() {
             double ref_yaw = deg2rad(car_yaw);
 
             //if the previous path size is almost zero then we use the car starting point as ref states
-            if(prev_size<2)
-            {
+            if(prev_size<2){
               // use two points to make the path tangent to the car direction
               double prev_car_x = car_x - cos(car_yaw);
               double prev_car_y = car_y - sin(car_yaw);
