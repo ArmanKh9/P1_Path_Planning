@@ -253,9 +253,9 @@ int main() {
 
             // referenced x, y, and yaw states
             // we either use the car starting point or end points from the previous path
-            vector<double> ref_x = car_x;
-            vector<double> ref_y = car_y;
-            vector<double> ref_yaw = deg2rad(car_yaw);
+            double ref_x = car_x;
+            double ref_y = car_y;
+            double ref_yaw = deg2rad(car_yaw);
 
             //if the previous path size is almost zero then we use the car starting point as ref states
             if(prev_size<2)
