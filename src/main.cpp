@@ -201,7 +201,7 @@ int main() {
   	map_waypoints_dy.push_back(d_y);
   }
 
-  double lane=1.0;
+  int lane=1;
 
   //reference velocity in mph
   double ref_vel = 49.5;
@@ -353,13 +353,13 @@ int main() {
             }
 
           	json msgJson;
-
+            /*
           	vector<double> next_x_vals;
           	vector<double> next_y_vals;
 
 
           	// TODO: define a path made up of (x,y) points that the car will visit sequentially every .02 seconds
-            /*double dist_inc = 0.45;
+            double dist_inc = 0.45;
             for(int i = 0; i < 50; i++)
             {
               double next_s = car_s+(i+1)*dist_inc;
