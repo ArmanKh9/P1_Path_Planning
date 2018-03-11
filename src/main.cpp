@@ -9,6 +9,7 @@
 #include "Eigen-3.3/Eigen/QR"
 #include "json.hpp"
 #include "spline.h"
+#include <stdlib.h>
 
 using namespace std;
 
@@ -179,6 +180,11 @@ int main() {
   // The max s value before wrapping around the track back to 0
   double max_s = 6945.554;
 
+  int lane=1;
+  
+  //reference velocity in mph
+  double ref_vel = 49.5;
+
   ifstream in_map_(map_file_.c_str(), ifstream::in);
 
   string line;
@@ -200,12 +206,6 @@ int main() {
   	map_waypoints_dx.push_back(d_x);
   	map_waypoints_dy.push_back(d_y);
   }
-
-
-  int lane=1;
-
-  //reference velocity in mph
-  double ref_vel = 49.5;
 
 
   h.onMessage([&map_waypoints_x,&map_waypoints_y,&map_waypoints_s,&map_waypoints_dx,&map_waypoints_dy](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
