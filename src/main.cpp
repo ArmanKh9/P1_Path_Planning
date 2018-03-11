@@ -180,11 +180,6 @@ int main() {
   // The max s value before wrapping around the track back to 0
   double max_s = 6945.554;
 
-  int lane=1;
-  
-  //reference velocity in mph
-  double ref_vel = 49.5;
-
   ifstream in_map_(map_file_.c_str(), ifstream::in);
 
   string line;
@@ -245,6 +240,11 @@ int main() {
           	// Sensor Fusion Data, a list of all other cars on the same side of the road.
           	auto sensor_fusion = j[1]["sensor_fusion"];
 
+            int lane=1;
+
+            //reference velocity in mph
+            double ref_vel = 49.5;
+
             int prev_size = previous_path_x.size();
 
             // create a list of widely (x,y) points that are evenly spaced at 30 m
@@ -283,9 +283,9 @@ int main() {
             }
 
             // In Frenet coordinate add evenly 30m spaced points ahead of the starting waypoint
-            vector<double> next_wp0 = getXY(car_s+30, (2+4.0*lane), map_waypoints_s, map_waypoints_x, map_waypoints_y);
-            vector<double> next_wp1 = getXY(car_s+60, (2+4.0*lane), map_waypoints_s, map_waypoints_x, map_waypoints_y);
-            vector<double> next_wp2 = getXY(car_s+90, (2+4.0*lane), map_waypoints_s, map_waypoints_x, map_waypoints_y);
+            vector<double> next_wp0 = getXY(car_s+30, (2+4*lane), map_waypoints_s, map_waypoints_x, map_waypoints_y);
+            vector<double> next_wp1 = getXY(car_s+60, (2+4*lane), map_waypoints_s, map_waypoints_x, map_waypoints_y);
+            vector<double> next_wp2 = getXY(car_s+90, (2+4*lane), map_waypoints_s, map_waypoints_x, map_waypoints_y);
 
             ptsx.push_back(next_wp0[0]);
             ptsx.push_back(next_wp1[0]);
@@ -369,10 +369,10 @@ int main() {
               next_y_vals.push_back(xy[1]);
 
             }
+            */
 
           	msgJson["next_x"] = next_x_vals;
           	msgJson["next_y"] = next_y_vals;
-            */
 
           	auto msg = "42[\"control\","+ msgJson.dump()+"]";
 
