@@ -267,8 +267,8 @@ int main() {
               ptsx.push_back(prev_car_x);
               ptsx.push_back(car_x);
 
-              ptsx.push_back(prev_car_y);
-              ptsx.push_back(car_y);
+              ptsy.push_back(prev_car_y);
+              ptsy.push_back(car_y);
             }
 
             // use previous end points as reference waypoints
@@ -291,9 +291,9 @@ int main() {
             ptsx.push_back(next_wp1[0]);
             ptsx.push_back(next_wp2[0]);
 
-            ptsy.push_back(next_wp0[0]);
-            ptsy.push_back(next_wp1[0]);
-            ptsy.push_back(next_wp2[0]);
+            ptsy.push_back(next_wp0[1]);
+            ptsy.push_back(next_wp1[1]);
+            ptsy.push_back(next_wp2[1]);
 
             for(int i=0; i<ptsx.size(); i++)
             {
