@@ -201,7 +201,7 @@ int main() {
   	map_waypoints_dy.push_back(d_y);
   }
 
-  int lane=1;
+  double lane=1.0;
 
   //reference velocity in mph
   double ref_vel = 49.5;
@@ -309,7 +309,7 @@ int main() {
             tk::spline s;
 
             //set (x,y) points we will use for Planner
-            s.set_point(ptsx,ptsy);
+            s.set_points(ptsx,ptsy);
 
             //Define actual waypoints (x,y) we will use for the planner
             vector<double> next_x_vals;
