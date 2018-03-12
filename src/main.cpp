@@ -289,7 +289,7 @@ int main() {
             double ref_yaw = deg2rad(car_yaw);
 
             //if the previous path size is almost zero then we use the car starting point as ref states
-            if(prev_size<2){
+            if(prev_size < 2){
               // use two points to make the path tangent to the car direction
               double prev_car_x = car_x - cos(car_yaw);
               double prev_car_y = car_y - sin(car_yaw);
@@ -310,6 +310,13 @@ int main() {
               double ref_x_prev = previous_path_x[prev_size-2];
               double ref_y_prev = previous_path_y[prev_size-2];
               ref_yaw = atan2(ref_y-ref_y_prev, ref_x-ref_x_prev);
+
+              ptsx.push_back(ref_x_prev);
+              ptsx.push_back(ref_x);
+
+              ptsy.push_back(ref_y_prev);
+              ptsy.push_back(ref_y);
+              
             }
 
             // In Frenet coordinate add evenly 30m spaced points ahead of the starting waypoint
