@@ -180,6 +180,11 @@ int main() {
   // The max s value before wrapping around the track back to 0
   double max_s = 6945.554;
 
+  int lane=1;
+
+  //reference velocity in mph
+  double ref_vel = 49.5;
+
   ifstream in_map_(map_file_.c_str(), ifstream::in);
 
   string line;
@@ -203,7 +208,7 @@ int main() {
   }
 
 
-  h.onMessage([&map_waypoints_x,&map_waypoints_y,&map_waypoints_s,&map_waypoints_dx,&map_waypoints_dy](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
+  h.onMessage([&lane,&ref_vel,&map_waypoints_x,&map_waypoints_y,&map_waypoints_s,&map_waypoints_dx,&map_waypoints_dy](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
                      uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
@@ -240,11 +245,6 @@ int main() {
           	// Sensor Fusion Data, a list of all other cars on the same side of the road.
           	auto sensor_fusion = j[1]["sensor_fusion"];
 
-            int lane=1;
-
-            //reference velocity in mph
-            double ref_vel = 49.5;
-
             int prev_size = previous_path_x.size();
 
             if(prev_size>0){
@@ -272,7 +272,7 @@ int main() {
                   // also flag to change lane
                   ref_vel = 29.5; //mph
                   // too_close = true;
-                            
+
                 }
               }
             }
