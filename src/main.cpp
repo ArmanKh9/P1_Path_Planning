@@ -270,11 +270,20 @@ int main() {
                 if((check_car_s > car_s) && ((check_car_s - car_s) < 30)){
                   //Do some logic here, lower reference velocity to avoid crashing into the car at the front
                   // also flag to change lane
-                  ref_vel = 29.5; //mph
-                  // too_close = true;
+                  //ref_vel = 29.5; //mph
+                  too_close = true;
 
                 }
               }
+            }
+
+            if(too_close)
+            {
+              ref_vel -= .224;
+            }
+            else if(ref_vel < 49.5)
+            {
+              ref_vel += .224;
             }
 
             // create a list of widely (x,y) points that are evenly spaced at 30 m
@@ -316,7 +325,7 @@ int main() {
 
               ptsy.push_back(ref_y_prev);
               ptsy.push_back(ref_y);
-              
+
             }
 
             // In Frenet coordinate add evenly 30m spaced points ahead of the starting waypoint
