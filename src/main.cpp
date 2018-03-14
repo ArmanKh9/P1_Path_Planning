@@ -183,7 +183,7 @@ int main() {
   int lane=1;
 
   //reference velocity in mph
-  double ref_vel = 49.5;
+  double ref_vel = 0.0;
 
   ifstream in_map_(map_file_.c_str(), ifstream::in);
 
