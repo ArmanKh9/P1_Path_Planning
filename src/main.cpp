@@ -267,20 +267,12 @@ int main() {
                 check_car_s += ((double)prev_size*.02*check_speed);
 
                 //check if s value of the detected car is greater than the ego car and calculate the gap
-                if((check_car_s > car_s) && ((check_car_s - car_s) < 30)){
+                if(lane = 1 && (check_car_s > car_s) && ((check_car_s - car_s) < 30)){
                   //Do some logic here, lower reference velocity to avoid crashing into the car at the front
                   // also flag to change lane
                   //ref_vel = 29.5; //mph
                   too_close = true;
-                  if(lane = 1)
-                  {
-                    lane = 0;
-                  }
-                  else if (lane = 0)
-                  {
-                    lane = 1;
-                  }
-
+                  lane = 0;
                 }
               }
             }
