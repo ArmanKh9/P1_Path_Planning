@@ -274,10 +274,11 @@ int main() {
                   too_close = true;
                   int k;
                   k = lane;
-                  if(k = 1){
+                  if(k == 1){
                     lane = 2;
                   }
-                  if(k = 0){
+
+                  if(k == 0){
                     lane = 1;
                   }
                   cout<<"lane: "<<lane<<"  K: "<<k<<endl;
