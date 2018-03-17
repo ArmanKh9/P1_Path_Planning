@@ -278,7 +278,7 @@ int main() {
                     lane = 2;
                   }
 
-                  if(k == 0){
+                  if(k == 2){
                     lane = 1;
                   }
                   cout<<"lane: "<<lane<<"  K: "<<k<<endl;
