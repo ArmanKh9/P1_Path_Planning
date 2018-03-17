@@ -280,6 +280,7 @@ int main() {
                   if(k = 0){
                     lane = 1;
                   }
+                  cout<<lane<<endl;
                 }
               }
             }
