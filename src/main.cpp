@@ -275,12 +275,12 @@ int main() {
                   int k;
                   k = lane;
                   if(k = 1){
-                    lane = 0;
+                    lane = 2;
                   }
                   if(k = 0){
                     lane = 1;
                   }
-                  cout<<lane<<endl;
+                  cout<<"lane: "<<lane<<"  K: "<<k<<endl;
                 }
               }
             }
