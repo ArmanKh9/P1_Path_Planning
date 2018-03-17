@@ -272,6 +272,7 @@ int main() {
                   // also flag to change lane
                   //ref_vel = 29.5; //mph
                   too_close = true;
+                  int k;
                   k = lane;
                   if(k = 1){
                     lane = 0;
