@@ -286,11 +286,11 @@ int main() {
 
             if(too_close)
             {
-              ref_vel -= .224;
+              ref_vel -= .6;//.224
             }
             else if(ref_vel < 49.5)
             {
-              ref_vel += .224;
+              ref_vel += .8;
             }
 
             // create a list of widely (x,y) points that are evenly spaced at 30 m
