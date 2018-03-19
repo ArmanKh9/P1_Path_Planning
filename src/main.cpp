@@ -183,9 +183,6 @@ int main() {
 
   int lane=1;
 
-  //cost vector
-  vector<double> cost = {10000,10000,10000};
-
   //reference velocity in mph
   double ref_vel = 0.0;
 
@@ -199,7 +196,7 @@ int main() {
   double cost_lane_change = 0.05;
 
   //safe distance for lane change
-  dist_lane_change = 50;
+  double dist_lane_change = 50;
 
   ifstream in_map_(map_file_.c_str(), ifstream::in);
 
@@ -271,8 +268,9 @@ int main() {
             bool too_close = false;
 
             // possible future state are kl (keep lane), cll (change lane left), clr (change lane right)
-            string possible_states = {"kl", "cll", "clr"};
+            vector<string> possible_states = {"kl", "cll", "clr"};
             string state = "kl";
+            vector<double> cost = {1000,1000,1000};
 
             //find ref_v to use
             for(int i=0; i< sensor_fusion.size(); i++){
