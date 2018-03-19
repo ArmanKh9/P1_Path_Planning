@@ -190,7 +190,7 @@ int main() {
   double max_vel = 49.5; //mph
 
   //minimum safe velocity
-  double min_vel = 20;//mph
+  double min_vel = 35;//mph
 
   //constant/default cost of changing lane
   double cost_lane_change = 0.0005;
@@ -294,17 +294,10 @@ int main() {
             }
 
             //reducing speed to keep the safe distance from the car in front
-            if(too_close)
-            {
-              if(((check_car_s - car_s) > 10) &&((check_car_s - car_s) < 25)){
-                ref_vel -= .224;//.224
-              }else{
-                ref_vel -= .8;
-              }
-            }
-            else if(ref_vel < max_vel)
-            {
-              ref_vel += .8;
+            if(too_close){
+                ref_vel -= .224;
+            }else if(ref_vel < max_vel){
+              ref_vel += .6;
             }
 
 
@@ -321,7 +314,7 @@ int main() {
                   }
                   else{
                   //calculate cost of kl (keep_lane)
-                  cost[0] = (max_vel - ref_vel)/max_vel;
+                  cost[0] = 2*(max_vel - ref_vel)/max_vel;
                   }
                 }
 
