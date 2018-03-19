@@ -165,6 +165,7 @@ vector<double> getXY(double s, double d, const vector<double> &maps_s, const vec
 
 }
 
+
 int main() {
   uWS::Hub h;
 
@@ -182,8 +183,23 @@ int main() {
 
   int lane=1;
 
+  //cost vector
+  vector<double> cost = {10000,10000,10000};
+
   //reference velocity in mph
   double ref_vel = 0.0;
+
+  //maximum safe velocity
+  double max_vel = 49.5; //mph
+
+  //minimum safe velocity
+  double min_vel = 20;//mph
+
+  //constant/default cost of changing lane
+  double cost_lane_change = 0.05;
+
+  //safe distance for lane change
+  dist_lane_change = 50;
 
   ifstream in_map_(map_file_.c_str(), ifstream::in);
 
@@ -208,8 +224,9 @@ int main() {
   }
 
 
-  h.onMessage([&lane,&ref_vel,&map_waypoints_x,&map_waypoints_y,&map_waypoints_s,&map_waypoints_dx,&map_waypoints_dy](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
-                     uWS::OpCode opCode) {
+  h.onMessage([&lane,&ref_vel,&max_vel, &min_vel,&cost_lane_change,&dist_lane_change,
+    &map_waypoints_x,&map_waypoints_y,&map_waypoints_s,&map_waypoints_dx,
+    &map_waypoints_dy](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
     // The 2 signifies a websocket event
@@ -253,11 +270,15 @@ int main() {
 
             bool too_close = false;
 
+            // possible future state are kl (keep lane), cll (change lane left), clr (change lane right)
+            string possible_states = {"kl", "cll", "clr"};
+            string state = "kl";
+
             //find ref_v to use
             for(int i=0; i< sensor_fusion.size(); i++){
               // car is in my lane
               float d = sensor_fusion[i][6];
-              if(d < (2+4*lane+2) && d > (2+4*lane-2)){
+              if(d<(2+4*lane+2) && d>(2+4*lane-2)){
                 double vx = sensor_fusion[i][3];
                 double vy = sensor_fusion[i][4];
                 double check_speed = sqrt(vx*vx+vy*vy);
@@ -268,32 +289,109 @@ int main() {
 
                 //check if s value of the detected car is greater than the ego car and calculate the gap
                 if((check_car_s > car_s) && ((check_car_s - car_s) < 30)){
-                  //Do some logic here, lower reference velocity to avoid crashing into the car at the front
-                  // also flag to change lane
-                  //ref_vel = 29.5; //mph
+                  // flag to start assesing lane change
                   too_close = true;
-                  int k;
-                  k = lane;
-                  if(k == 1){
-                    lane = 2;
-                  }
-
-                  if(k == 2){
-                    lane = 1;
-                  }
-                  cout<<"lane: "<<lane<<"  K: "<<k<<endl;
                 }
               }
             }
 
+            //reducing speed to keep the safe distance from the car in front
             if(too_close)
             {
               ref_vel -= .6;//.224
             }
-            else if(ref_vel < 49.5)
+            else if(ref_vel < max_vel)
             {
               ref_vel += .8;
             }
+
+
+            if(too_close){
+              //adding minimum lane change cost to cost of cll and clr
+              cost[1] = cost_lane_change;
+              cost[2] = cost_lane_change;
+
+              for(int i=0; i< sensor_fusion.size(); i++){
+                float d = sensor_fusion[i][6];
+                if(d<(2+4*lane+2) && d>(2+4*lane-2)){
+                  if(ref_vel<min_vel){
+                    cost[0] = 0;
+                  }
+                  else{
+                  //calculate cost of kl (keep_lane)
+                  cost[0] = (max_vel - ref_vel)/max_vel;
+                  }
+                }
+
+                if(d<(2+4*(lane-1)+2) && d>(2+4*(lane-1)-2)){
+                  //calculate cost of cll (change lane left)
+                  //C|distance from car ahead of the ego vehicle in the target lane + C|distance of car behind the ego vehicle in the target lane + C|Lane change;
+                  //car in the left lane
+                  double vx = sensor_fusion[i][3];
+                  double vy = sensor_fusion[i][4];
+                  double check_speed = sqrt(vx*vx+vy*vy);
+                  double check_car_s = sensor_fusion[i][5];
+
+                  //project out the detected car s since currenlty we are at previous steps
+                  check_car_s += ((double)prev_size*.02*check_speed);
+
+                  if(abs(check_car_s - car_s) > dist_lane_change)){
+                    cost[1] += 0.25/exp(abs(check_car_s-car_s)-dist_lane_change);
+                  }
+                  else{
+                    cost[1] = 999;
+                  }
+                }
+
+                if(d<(2+4*(lane+1)+2) && d>(2+4*(lane+1)-2)){
+                  //calculate cost of cll (change lane left)
+                  //C|distance from car ahead of the ego vehicle in the target lane + C|distance of car behind the ego vehicle in the target lane + C|Lane change;
+                  //car in the left lane
+                  double vx = sensor_fusion[i][3];
+                  double vy = sensor_fusion[i][4];
+                  double check_speed = sqrt(vx*vx+vy*vy);
+                  double check_car_s = sensor_fusion[i][5];
+
+                  //project out the detected car s since currenlty we are at previous steps
+                  check_car_s += ((double)prev_size*.02*check_speed);
+
+                  if(abs(check_car_s - car_s) > dist_lane_change)){
+                    cost[2] += 0.25/exp(abs(check_car_s-car_s)-dist_lane_change);
+                  }
+                  else{
+                    cost[2] = 999;
+                  }
+                }
+              }
+
+                //finding which state has the lowest cost and choose that state
+                string best_next_state;
+                double min_cost = 999999;
+                for(int j=0; j<cost.size(); j++){
+                  if(cost[j]<min_cost){
+                    min_cost = cost[j];
+                    state = possible_states[j];
+                  }
+                }
+              }
+
+              //perform action for the selected state
+              if(state=="cll"){
+                if(lane==1 ){
+                  lane = 0;
+                }
+                if(lane==2){
+                  lane=1;
+                }
+              }
+              if(state=="clr"){
+                if(lane==0 ){
+                  lane = 1;
+                }
+                if(lane==1){
+                  lane=2;
+                }
+              }
 
             // create a list of widely (x,y) points that are evenly spaced at 30 m
             // later we will interapolate waypoints with a spline and fill it in with more waypoints
@@ -377,7 +475,7 @@ int main() {
               next_y_vals.push_back(previous_path_y[i]);
             }
 
-            //calculate how to brek up spline points so that we travel at our desired reference velocity
+            //calculate how to break up spline points so that we travel at our desired reference velocity
             double target_x = 30.0;
             double target_y = s(target_x);
             double target_dist = sqrt((target_x)*(target_x)+(target_y)*(target_y));
@@ -408,23 +506,6 @@ int main() {
             }
 
           	json msgJson;
-            /*
-          	vector<double> next_x_vals;
-          	vector<double> next_y_vals;
-
-
-          	// TODO: define a path made up of (x,y) points that the car will visit sequentially every .02 seconds
-            double dist_inc = 0.45;
-            for(int i = 0; i < 50; i++)
-            {
-              double next_s = car_s+(i+1)*dist_inc;
-              double next_d = 6;
-              vector<double> xy = getXY(next_s, next_d, map_waypoints_s, map_waypoints_x, map_waypoints_y);
-              next_x_vals.push_back(xy[0]);
-              next_y_vals.push_back(xy[1]);
-
-            }
-            */
 
           	msgJson["next_x"] = next_x_vals;
           	msgJson["next_y"] = next_y_vals;
