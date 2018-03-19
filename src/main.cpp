@@ -193,10 +193,10 @@ int main() {
   double min_vel = 20;//mph
 
   //constant/default cost of changing lane
-  double cost_lane_change = 0.05;
+  double cost_lane_change = 0.0005;
 
   //safe distance for lane change
-  double dist_lane_change = 10;
+  double dist_lane_change = 6;
 
   ifstream in_map_(map_file_.c_str(), ifstream::in);
 
