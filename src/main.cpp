@@ -333,7 +333,7 @@ int main() {
                   //project out the detected car s since currenlty we are at previous steps
                   check_car_s += ((double)prev_size*.02*check_speed);
 
-                  if(abs(check_car_s - car_s) > dist_lane_change)){
+                  if(abs(check_car_s - car_s) > dist_lane_change){
                     cost[1] += 0.25/exp(abs(check_car_s-car_s)-dist_lane_change);
                   }
                   else{
@@ -353,7 +353,7 @@ int main() {
                   //project out the detected car s since currenlty we are at previous steps
                   check_car_s += ((double)prev_size*.02*check_speed);
 
-                  if(abs(check_car_s - car_s) > dist_lane_change)){
+                  if(abs(check_car_s - car_s) > dist_lane_change){
                     cost[2] += 0.25/exp(abs(check_car_s-car_s)-dist_lane_change);
                   }
                   else{
