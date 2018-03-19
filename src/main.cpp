@@ -371,6 +371,7 @@ int main() {
               }
 
               //perform action for the selected state
+              cout<<state<<endl;
               if(state=="cll"){
                 if(lane==1 ){
                   lane = 0;
@@ -380,7 +381,7 @@ int main() {
                 }
               }
               if(state=="clr"){
-                if(lane==0 ){
+                if(lane==0){
                   lane = 1;
                 }
                 if(lane==1){
