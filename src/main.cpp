@@ -296,11 +296,15 @@ int main() {
             //reducing speed to keep the safe distance from the car in front
             if(too_close)
             {
-              ref_vel -= .6;//.224
+              if(((check_car_s - car_s) > 10) &&((check_car_s - car_s) < 25)){
+                ref_vel -= .224;//.224
+              }else{
+                ref_vel -= .8;
+              }
             }
             else if(ref_vel < max_vel)
             {
-              ref_vel += .6;
+              ref_vel += .8;
             }
 
 
