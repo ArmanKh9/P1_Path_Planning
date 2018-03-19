@@ -334,7 +334,7 @@ int main() {
                   check_car_s += ((double)prev_size*.02*check_speed);
 
                   if(abs(check_car_s - car_s) > dist_lane_change){
-                    cost[1] += 0.1/exp(abs(check_car_s-car_s)-dist_lane_change);
+                    cost[1] += 0.01/exp(abs(check_car_s-car_s)-dist_lane_change);
                   }
                   else{
                     cost[1] = 999;
@@ -354,7 +354,7 @@ int main() {
                   check_car_s += ((double)prev_size*.02*check_speed);
 
                   if(abs(check_car_s - car_s) > dist_lane_change){
-                    cost[2] += 0.1/exp(abs(check_car_s-car_s)-dist_lane_change);
+                    cost[2] += 0.01/exp(abs(check_car_s-car_s)-dist_lane_change);
                   }
                   else{
                     cost[2] = 999;
