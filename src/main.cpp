@@ -286,7 +286,7 @@ int main() {
                 check_car_s += ((double)prev_size*.02*check_speed);
 
                 //check if s value of the detected car is greater than the ego car and calculate the gap
-                if((check_car_s > car_s) && ((check_car_s - car_s) < 40)){
+                if((check_car_s > car_s) && ((check_car_s - car_s) < 25)){
                   // flag to start assesing lane change
                   too_close = true;
                 }
