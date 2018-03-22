@@ -193,7 +193,7 @@ int main() {
   double min_vel = 35;//mph
 
   //constant/default cost of changing lane
-  double cost_lane_change = 0.0005;
+  double cost_lane_change = 0.5;
 
   //safe distance for lane change
   double dist_lane_change = 6;
@@ -300,6 +300,9 @@ int main() {
               ref_vel += .6;
             }
 
+            //cost weights
+            double c_velocity_dif = 0.01;
+            double c_lane_change_cars_dist = 0.01;
 
             if(too_close){
               //adding minimum lane change cost to cost of cll and clr
@@ -314,7 +317,7 @@ int main() {
                   }
                   else{
                   //calculate cost of kl (keep_lane)
-                  cost[0] = 2*(max_vel - ref_vel)/max_vel;
+                  cost[0] = c_velocity_dif*max_vel/(max_vel - ref_vel);
                   }
                 }
 
@@ -331,7 +334,7 @@ int main() {
                   check_car_s += ((double)prev_size*.02*check_speed);
 
                   if(abs(check_car_s - car_s) > dist_lane_change){
-                    cost[1] += 0.01/exp(abs(check_car_s-car_s)-dist_lane_change);
+                    cost[1] += c_lane_change_cars_dist/exp(abs(check_car_s-car_s)-dist_lane_change);
                   }
                   else{
                     cost[1] = 999;
@@ -351,7 +354,7 @@ int main() {
                   check_car_s += ((double)prev_size*.02*check_speed);
 
                   if(abs(check_car_s - car_s) > dist_lane_change){
-                    cost[2] += 0.01/exp(abs(check_car_s-car_s)-dist_lane_change);
+                    cost[2] += c_lane_change_cars_dist/exp(abs(check_car_s-car_s)-dist_lane_change);
                   }
                   else{
                     cost[2] = 999;
