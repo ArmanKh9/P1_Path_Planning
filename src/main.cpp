@@ -383,6 +383,7 @@ int main() {
 
               //perform action for the selected state
               cout<<state<<endl;
+              cout<<"kl="<<cost[0]<<"cll="<<cost[1]<<"clr="<<cost[2]<<endl;
               if(state=="cll"){
                 if(lane==1 ){
                   lane = 0;
