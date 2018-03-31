@@ -295,9 +295,9 @@ int main() {
 
             //reducing speed to keep the safe distance from the car in front
             if(too_close){
-                ref_vel -= .224;
+                ref_vel -= .6;
             }else if(ref_vel < max_vel){
-              ref_vel += .6;
+              ref_vel += .8;
             }
 
             //cost weights
@@ -339,6 +339,10 @@ int main() {
                   else{
                     cost[1] = 999;
                   }
+
+                  if(lane==0){
+                    cost[1] = 999;
+                  }
                 }
 
                 if(d<(2+4*(lane+1)+2) && d>(2+4*(lane+1)-2)){
@@ -357,6 +361,10 @@ int main() {
                     cost[2] += c_lane_change_cars_dist/exp(abs(check_car_s-car_s)-dist_lane_change);
                   }
                   else{
+                    cost[2] = 999;
+                  }
+
+                  if(lane==2){
                     cost[2] = 999;
                   }
                 }
