@@ -267,8 +267,8 @@ int main() {
 
             bool too_close = false;
 
-            // possible future state are kl (keep lane), cll (change lane left), clr (change lane right)
-            vector<string> possible_states = {"kl", "cll", "clr"};
+            // possible future state are kl (keep lane), lcl (change lane left), lcr (change lane right)
+            vector<string> possible_states = {"kl", "lcl", "lcr"};
             string state = "kl";
             vector<double> cost = {1000,1000,1000};
 
@@ -296,19 +296,33 @@ int main() {
             //reducing speed to keep the safe distance from the car in front
             if(too_close){
                 ref_vel -= .50;
+
+                // if checked_car is closer than 10 meter, the ego car decelerate at a much higher value to
+                //avoid collision (braking)
                 for(int i=0; i< sensor_fusion.size(); i++){
                   // car is in my lane
                   float d = sensor_fusion[i][6];
+                  double x = sensor_fusion[i][1];
+                  double y = sensor_fusion[i][2];
+                  double vx = sensor_fusion[i][3];
+                  double vy = sensor_fusion[i][4];
+                  double check_speed = sqrt(vx*vx+vy*vy);
+                  double check_car_s = sensor_fusion[i][5];
+
+                  //project d of the detected car to predict not only cars in the same lane but cars that
+                  // may want to change their lane and move to the ego car lane
+                  x += ((double)prev_size*.2*vx);
+                  y += ((double)prev_size*.2*vy);
+                  double check_car_theta = atan2(vy/vx);
+                  vector<double> check_car_future_sd = getFrenet(x, y, check_car_theta, map_waypoints_x, map_waypoints_y);
+                  d = check_car_future_sd[1];
+
                   if(d<(2+4*lane+2) && d>(2+4*lane-2)){
-                    double vx = sensor_fusion[i][3];
-                    double vy = sensor_fusion[i][4];
-                    double check_speed = sqrt(vx*vx+vy*vy);
-                    double check_car_s = sensor_fusion[i][5];
 
                     //project out the detected car s since currenlty we are at previous steps
                     check_car_s += ((double)prev_size*.02*check_speed);
 
-                    //check if s value of the detected car is greater than the ego car and calculate the gap
+                    //check if the detected car is closer than 10m and decelerate (braking)
                     if((check_car_s > car_s) && ((check_car_s - car_s) < 10)){
                       ref_vel -= 2.0;
                     }
@@ -323,7 +337,7 @@ int main() {
             double c_lane_change_cars_dist = 0.01;
 
             if(too_close){
-              //adding minimum lane change cost to cost of cll and clr
+              //adding minimum lane change cost to cost of lcl and lcr
               cost[1] = cost_lane_change;
               cost[2] = cost_lane_change;
               if(lane==0){
@@ -347,7 +361,7 @@ int main() {
                 }
 
                 if(d<(2+4*(lane-1)+2) && d>(2+4*(lane-1)-2)){
-                  //calculate cost of cll (change lane left)
+                  //calculate cost of lcl (change lane left)
                   //C|distance from car ahead of the ego vehicle in the target lane + C|distance of car behind the ego vehicle in the target lane + C|Lane change;
                   //car in the left lane
                   double vx = sensor_fusion[i][3];
@@ -367,7 +381,7 @@ int main() {
                 }
 
                 if(d<(2+4*(lane+1)+2) && d>(2+4*(lane+1)-2)){
-                  //calculate cost of cll (change lane left)
+                  //calculate cost of lcl (change lane left)
                   //C|distance from car ahead of the ego vehicle in the target lane + C|distance of car behind the ego vehicle in the target lane + C|Lane change;
                   //car in the left lane
                   double vx = sensor_fusion[i][3];
@@ -400,8 +414,8 @@ int main() {
 
               //perform action for the selected state
               cout<<state<<endl;
-              cout<<"kl="<<cost[0]<<"cll="<<cost[1]<<"clr="<<cost[2]<<endl;
-              if(state=="cll"){
+              cout<<"kl="<<cost[0]<<"lcl="<<cost[1]<<"lcr="<<cost[2]<<endl;
+              if(state=="lcl"){
                 if(lane==1 ){
                   lane = 0;
                 }
@@ -409,7 +423,7 @@ int main() {
                   lane=1;
                 }
               }
-              if(state=="clr"){
+              if(state=="lcr"){
                 if(lane==1){
                   lane=2;
                 }
