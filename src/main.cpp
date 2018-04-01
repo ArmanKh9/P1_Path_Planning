@@ -193,7 +193,7 @@ int main() {
   double min_vel = 35;//mph
 
   //constant/default cost of changing lane
-  double cost_lane_change = 0.5;
+  double cost_lane_change = 0.25;
 
   //safe distance for lane change
   double dist_lane_change = 12;
