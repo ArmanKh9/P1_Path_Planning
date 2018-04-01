@@ -313,7 +313,7 @@ int main() {
                   // may want to change their lane and move to the ego car lane
                   x += ((double)prev_size*.2*vx);
                   y += ((double)prev_size*.2*vy);
-                  double check_car_theta = atan2(vy/vx);
+                  double check_car_theta = atan2(vy,vx);
                   vector<double> check_car_future_sd = getFrenet(x, y, check_car_theta, map_waypoints_x, map_waypoints_y);
                   d = check_car_future_sd[1];
 
