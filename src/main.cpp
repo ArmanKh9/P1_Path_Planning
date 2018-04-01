@@ -196,7 +196,7 @@ int main() {
   double cost_lane_change = 0.5;
 
   //safe distance for lane change
-  double dist_lane_change = 6;
+  double dist_lane_change = 12;
 
   ifstream in_map_(map_file_.c_str(), ifstream::in);
 
@@ -295,7 +295,7 @@ int main() {
 
             //reducing speed to keep the safe distance from the car in front
             if(too_close){
-                ref_vel -= .224;
+                ref_vel -= .44;
             }else if(ref_vel < max_vel){
               ref_vel += .224;
             }
