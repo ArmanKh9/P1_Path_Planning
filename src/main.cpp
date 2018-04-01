@@ -308,6 +308,13 @@ int main() {
               //adding minimum lane change cost to cost of cll and clr
               cost[1] = cost_lane_change;
               cost[2] = cost_lane_change;
+              if(lane==0){
+                cost[1]=1001;
+              }
+              if(lane==2){
+                cost[2]=1001;
+              }
+
 
               for(int i=0; i< sensor_fusion.size(); i++){
                 float d = sensor_fusion[i][6];
@@ -339,10 +346,6 @@ int main() {
                   else{
                     cost[1] = 999;
                   }
-
-                  if(lane==0){
-                    cost[1] = 999;
-                  }
                 }
 
                 if(d<(2+4*(lane+1)+2) && d>(2+4*(lane+1)-2)){
@@ -361,10 +364,6 @@ int main() {
                     cost[2] += c_lane_change_cars_dist/exp(abs(check_car_s-car_s)-dist_lane_change);
                   }
                   else{
-                    cost[2] = 999;
-                  }
-
-                  if(lane==2){
                     cost[2] = 999;
                   }
                 }
