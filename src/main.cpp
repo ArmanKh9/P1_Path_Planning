@@ -295,9 +295,9 @@ int main() {
 
             //reducing speed to keep the safe distance from the car in front
             if(too_close){
-                ref_vel -= .672;
+                ref_vel -= .50;
             }else if(ref_vel < max_vel){
-              ref_vel += .448;
+              ref_vel += .50;
             }
 
             //cost weights
