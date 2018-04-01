@@ -392,11 +392,11 @@ int main() {
                 }
               }
               if(state=="clr"){
-                if(lane==0){
-                  lane = 1;
-                }
                 if(lane==1){
                   lane=2;
+                }
+                if(lane==0){
+                  lane = 1;
                 }
               }
 
