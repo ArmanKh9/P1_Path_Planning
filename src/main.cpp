@@ -196,7 +196,7 @@ int main() {
   double cost_lane_change = 0.25;
 
   //safe distance for lane change
-  double dist_lane_change = 12;
+  double dist_lane_change = 25;
 
   ifstream in_map_(map_file_.c_str(), ifstream::in);
 
@@ -286,7 +286,7 @@ int main() {
                 check_car_s += ((double)prev_size*.02*check_speed);
 
                 //check if s value of the detected car is greater than the ego car and calculate the gap
-                if((check_car_s > car_s) && ((check_car_s - car_s) < 25)){
+                if((check_car_s > car_s) && ((check_car_s - car_s) < dist_lane_change)){
                   // flag to start assesing lane change
                   too_close = true;
                 }
