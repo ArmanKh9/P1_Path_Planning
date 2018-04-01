@@ -187,7 +187,7 @@ int main() {
   double ref_vel = 0.0;
 
   //maximum safe velocity
-  double max_vel = 49.5; //mph
+  double max_vel = 49.3; //mph
 
   //minimum safe velocity
   double min_vel = 35;//mph
@@ -295,9 +295,9 @@ int main() {
 
             //reducing speed to keep the safe distance from the car in front
             if(too_close){
-                ref_vel -= .6;
+                ref_vel -= .224;
             }else if(ref_vel < max_vel){
-              ref_vel += .8;
+              ref_vel += .224;
             }
 
             //cost weights
