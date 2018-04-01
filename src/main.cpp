@@ -196,7 +196,7 @@ int main() {
   double cost_lane_change = 0.25;
 
   //safe distance for lane change
-  double dist_lane_change = 25;
+  double dist_lane_change = 30;
 
   ifstream in_map_(map_file_.c_str(), ifstream::in);
 
