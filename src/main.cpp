@@ -296,6 +296,24 @@ int main() {
             //reducing speed to keep the safe distance from the car in front
             if(too_close){
                 ref_vel -= .50;
+                for(int i=0; i< sensor_fusion.size(); i++){
+                  // car is in my lane
+                  float d = sensor_fusion[i][6];
+                  if(d<(2+4*lane+2) && d>(2+4*lane-2)){
+                    double vx = sensor_fusion[i][3];
+                    double vy = sensor_fusion[i][4];
+                    double check_speed = sqrt(vx*vx+vy*vy);
+                    double check_car_s = sensor_fusion[i][5];
+
+                    //project out the detected car s since currenlty we are at previous steps
+                    check_car_s += ((double)prev_size*.02*check_speed);
+
+                    //check if s value of the detected car is greater than the ego car and calculate the gap
+                    if((check_car_s > car_s) && ((check_car_s - car_s) < 10)){
+                      ref_vel -= 2.0;
+                    }
+                  }
+                }
             }else if(ref_vel < max_vel){
               ref_vel += .50;
             }
