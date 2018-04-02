@@ -297,6 +297,7 @@ int main() {
             if(too_close){
                 ref_vel -= .50;
 
+                //Brake Module
                 // if checked_car is closer than 10 meter, the ego car decelerate at a much higher value to
                 //avoid collision (braking)
                 for(int i=0; i< sensor_fusion.size(); i++){
@@ -413,8 +414,6 @@ int main() {
               }
 
               //perform action for the selected state
-              cout<<state<<endl;
-              cout<<"kl="<<cost[0]<<"lcl="<<cost[1]<<"lcr="<<cost[2]<<endl;
               if(state=="lcl"){
                 if(lane==1 ){
                   lane = 0;
