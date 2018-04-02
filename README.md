@@ -96,7 +96,7 @@ The path planning part of the project can be broken into three parts:
     Planning
     Trajectory Generation
 
-##Prediction
+## Prediction
 The prediction part of the algorithm looks into future states of other vehicles on the road by pulling in data from sensor fusion. The ego vehicle tends to maintain its driving lane until it gets closer than 30 meter to a vehicle on the same lane. Being closer than 30 meter triggers some computation that will be performed in the planning section. Here is part of the code that predicts future location of the vehicles that are driving on the same lane as the ego vehicle:
 
 ```cpp
@@ -122,7 +122,7 @@ The prediction part of the algorithm looks into future states of other vehicles 
 ```
 If a vehicle on the same lane is closer than 30 meter, a boolean value is flagged.
 
-##Planning
+## Planning
 In the planning part, the ego vehicle determines which action it needs to take to not only to drive safely but to maintain highest possible speed in the highway which is 50 mph in this project. The action that the ego vehicle can take are as follows:
 
     keep lane marked as "kl"
@@ -196,7 +196,7 @@ This decision tree can be updated to be independent of lane number.
 
 If left and right lanes are not clear for a lane change, the vehicle maintain its lane and adjust its speed to stay more than 30 meters away from the front vehicle. The vehicle keeps this state until other lanes become available for a lane change.
 
-###brake module
+### brake module
 Sometimes other vehicles make erratic moves such as sudden lane change or hard brakes. In these cases, collision is likely to happen. Brake module was defined in order for the ego vehicle to avoid collisions by decelerating at a higher rate than usual slow down only if the distance to the front vehicle becomes less than 10 meters. Also, the module predicts future d value of cars in other lanes to check if they are making an unsafe lane change and act accordingly.
 
 ```cpp
@@ -234,12 +234,12 @@ Sometimes other vehicles make erratic moves such as sudden lane change or hard b
       }
 ```
 
-##Trajectory Generation
+## Trajectory Generation
 The trajectory generation module takes the lane information from the planning module and creates a set of waypoints for the vehicle to move too. To smooth the trajectory, the last two values from the previous path and three new waypoints set at 30m, 60m, and 90m are placed into vectors. Those waypoints are then fed into a spline generation tool.
 
 
 
-#Results
+# Results
 The ego vehicle was able to drive the entire loop successfully at multiple runs. Only one incident happened with the current code and that was due to multiple collisions between other vehicles and the ego vehicle failed to detect those as unsafe condition.
 
 ![One Round](https://github.com/ArmanKh9/P1_Path_Planning/blob/master/images/One.png)
@@ -249,6 +249,6 @@ The code was ran for mor than 22 mins and the vehicle seemed to be able to conti
 ![Three Rounds](https://github.com/ArmanKh9/P1_Path_Planning/blob/master/images/Three.png)
 
 
-#Addition Wrok
+# Additional Work
 The code does too many iteration and data scanning. Efficiency can be improved by combining several sensor fusion data pulling loops. Also, the safe distance for lane change can be defined in a more dynamic fashion to enable the vehicle to perform a lane change with smaller target lane gaps at lower speeds. For example, if speed is 25 mph, the required gap should be 15 meters instead of 30 meters which is required at 50 mph.
 Moreover, collision between other cars can trigger the braking module.
