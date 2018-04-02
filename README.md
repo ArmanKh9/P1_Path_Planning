@@ -1,6 +1,6 @@
 # CarND-Path-Planning-Project
 Self-Driving Car Engineer Nanodegree Program
-   
+
 ### Simulator.
 You can download the Term3 Simulator which contains the Path Planning Project from the [releases tab (https://github.com/udacity/self-driving-car-sim/releases).
 
@@ -38,13 +38,13 @@ Here is the data provided from the Simulator to the C++ Program
 #### Previous path data given to the Planner
 
 //Note: Return the previous list but with processed points removed, can be a nice tool to show how far along
-the path has processed since last time. 
+the path has processed since last time.
 
 ["previous_path_x"] The previous list of x points previously given to the simulator
 
 ["previous_path_y"] The previous list of y points previously given to the simulator
 
-#### Previous path's end s and d values 
+#### Previous path's end s and d values
 
 ["end_path_s"] The previous list's last point's frenet s value
 
@@ -52,7 +52,7 @@ the path has processed since last time.
 
 #### Sensor Fusion Data, a list of all other car's attributes on the same side of the road. (No Noise)
 
-["sensor_fusion"] A 2d vector of cars and then that car's [car's unique ID, car's x position in map coordinates, car's y position in map coordinates, car's x velocity in m/s, car's y velocity in m/s, car's s position in frenet coordinates, car's d position in frenet coordinates. 
+["sensor_fusion"] A 2d vector of cars and then that car's [car's unique ID, car's x position in map coordinates, car's y position in map coordinates, car's x velocity in m/s, car's y velocity in m/s, car's s position in frenet coordinates, car's d position in frenet coordinates.
 
 ## Details
 
@@ -82,59 +82,173 @@ A really helpful resource for doing this project and creating smooth trajectorie
   * Run either `install-mac.sh` or `install-ubuntu.sh`.
   * If you install from source, checkout to commit `e94b6e1`, i.e.
     ```
-    git clone https://github.com/uWebSockets/uWebSockets 
+    git clone https://github.com/uWebSockets/uWebSockets
     cd uWebSockets
     git checkout e94b6e1
     ```
 
-## Editor Settings
+# Write Up
 
-We've purposefully kept editor configuration files out of this repo in order to
-keep it as simple and environment agnostic as possible. However, we recommend
-using the following settings:
+In this project a vehicle has to safely drive in a highway by using path planning strategies. The project includes a simulator provided by Udacity in order to run the path planning algorithm. The path planner algorithm is written in src/main.cpp.
+The path planning part of the project can be broken into three parts:
 
-* indent using spaces
-* set tab width to 2 spaces (keeps the matrices in source code aligned)
+    Prediction
+    Planning
+    Trajectory Generation
 
-## Code Style
+##Prediction
+The prediction part of the algorithm looks into future states of other vehicles on the road by pulling in data from sensor fusion. The ego vehicle tends to maintain its driving lane until it gets closer than 30 meter to a vehicle on the same lane. Being closer than 30 meter triggers some computation that will be performed in the planning section. Here is part of the code that predicts future location of the vehicles that are driving on the same lane as the ego vehicle:
 
-Please (do your best to) stick to [Google's C++ style guide](https://google.github.io/styleguide/cppguide.html).
+```cpp
+      for(int i=0; i< sensor_fusion.size(); i++){
+        // car is in my lane
+        float d = sensor_fusion[i][6];
+        if(d<(2+4*lane+2) && d>(2+4*lane-2)){
+          double vx = sensor_fusion[i][3];
+          double vy = sensor_fusion[i][4];
+          double check_speed = sqrt(vx*vx+vy*vy);
+          double check_car_s = sensor_fusion[i][5];
 
-## Project Instructions and Rubric
+          //project out the detected car s since currenlty we are at previous steps
+          check_car_s += ((double)prev_size*.02*check_speed);
 
-Note: regardless of the changes you make, your project must be buildable using
-cmake and make!
+          //check if s value of the detected car is greater than the ego car and calculate the gap
+          if((check_car_s > car_s) && ((check_car_s - car_s) < dist_lane_change)){
+            // flag to start assesing lane change
+            too_close = true;
+          }
+        }
+      }
+```
+If a vehicle on the same lane is closer than 30 meter, a boolean value is flagged.
+
+##Planning
+In the planning part, the ego vehicle determines which action it needs to take to not only to drive safely but to maintain highest possible speed in the highway which is 50 mph in this project. The action that the ego vehicle can take are as follows:
+
+    keep lane marked as "kl"
+    lane change left marked as "lcl"
+    lane change right maked as "lcr"
+
+A cost value is defined for each of these actions. The ego vehicle will take the action with the smallest cost. Initially cost of all actions are set to 1000 and the vehicle always keeps its current lane unless it gets closer than 30 meter to a vehicle in front of it. Once that happens, the ego vehicle starts to decelerate at a low rate and then start computing cost of each action. Below is a piece of code that computes cost associated with keeping lane or changing lane:
+
+```cpp
+      for(int i=0; i< sensor_fusion.size(); i++){
+        float d = sensor_fusion[i][6];
+        if(d<(2+4*lane+2) && d>(2+4*lane-2)){
+          if(ref_vel<min_vel){
+            cost[0] = 0;
+          }
+          else{
+          //calculate cost of kl (keep_lane)
+          cost[0] = c_velocity_dif*max_vel/(max_vel - ref_vel);
+          }
+        }
+      }
+```
+
+```cpp
+      if(d<(2+4*(lane-1)+2) && d>(2+4*(lane-1)-2)){
+        //calculate cost of lcl (change lane left)
+        //C|distance from car ahead of the ego vehicle in the target lane + C|distance of car behind the ego vehicle in the target lane + C|Lane change;
+        //car in the left lane
+        double vx = sensor_fusion[i][3];
+        double vy = sensor_fusion[i][4];
+        double check_speed = sqrt(vx*vx+vy*vy);
+        double check_car_s = sensor_fusion[i][5];
+
+        //project out the detected car s since currenlty we are at previous steps
+        check_car_s += ((double)prev_size*.02*check_speed);
+
+        if(abs(check_car_s - car_s) > dist_lane_change){
+          cost[1] += c_lane_change_cars_dist/exp(abs(check_car_s-car_s)-dist_lane_change);
+        }
+        else{
+          cost[1] = 999;
+        }
+      }
+```
+A safe lane change is dependent on safe distance in s direction between the ego vehicle and other vehicles in the target lane. Here dist_lane_change is defining that distance which is set to 30 meters. So a minimum of 60 meter gap is needed for a safe lane change. It must be noted that this distance is safe for 50 mph speed and needs to be adjusted for lower speeds.
+
+When the ego vehicle is on the most left or right lane, lcl and lcr associated cost values set to 1001 to put that action out of options.
+
+Finally, the minimum cost value is extracted and its associated action is performed through a decision tree.
+
+```cpp
+      //perform action for the selected state
+      if(state=="lcl"){
+        if(lane==1 ){
+          lane = 0;
+        }
+        if(lane==2){
+          lane=1;
+        }
+      }
+      if(state=="lcr"){
+        if(lane==1){
+          lane=2;
+        }
+        if(lane==0){
+          lane = 1;
+        }
+}
+```
+This decision tree can be updated to be independent of lane number.
+
+If left and right lanes are not clear for a lane change, the vehicle maintain its lane and adjust its speed to stay more than 30 meters away from the front vehicle. The vehicle keeps this state until other lanes become available for a lane change.
+
+###brake module
+Sometimes other vehicles make erratic moves such as sudden lane change or hard brakes. In these cases, collision is likely to happen. Brake module was defined in order for the ego vehicle to avoid collisions by decelerating at a higher rate than usual slow down only if the distance to the front vehicle becomes less than 10 meters. Also, the module predicts future d value of cars in other lanes to check if they are making an unsafe lane change and act accordingly.
+
+```cpp
+      //Brake Module
+      // if checked_car is closer than 10 meter, the ego car decelerate at a much higher value to
+      //avoid collision (braking)
+      for(int i=0; i< sensor_fusion.size(); i++){
+        // car is in my lane
+        float d = sensor_fusion[i][6];
+        double x = sensor_fusion[i][1];
+        double y = sensor_fusion[i][2];
+        double vx = sensor_fusion[i][3];
+        double vy = sensor_fusion[i][4];
+        double check_speed = sqrt(vx*vx+vy*vy);
+        double check_car_s = sensor_fusion[i][5];
+
+        //project d of the detected car to predict not only cars in the same lane but cars that
+        // may want to change their lane and move to the ego car lane
+        x += ((double)prev_size*.2*vx);
+        y += ((double)prev_size*.2*vy);
+        double check_car_theta = atan2(vy,vx);
+        vector<double> check_car_future_sd = getFrenet(x, y, check_car_theta, map_waypoints_x, map_waypoints_y);
+        d = check_car_future_sd[1];
+
+        if(d<(2+4*lane+2) && d>(2+4*lane-2)){
+
+          //project out the detected car s since currenlty we are at previous steps
+          check_car_s += ((double)prev_size*.02*check_speed);
+
+          //check if the detected car is closer than 10m and decelerate (braking)
+          if((check_car_s > car_s) && ((check_car_s - car_s) < 10)){
+            ref_vel -= 2.0;
+          }
+        }
+      }
+```
+
+##Trajectory Generation
+The trajectory generation module takes the lane information from the planning module and creates a set of waypoints for the vehicle to move too. To smooth the trajectory, the last two values from the previous path and three new waypoints set at 30m, 60m, and 90m are placed into vectors. Those waypoints are then fed into a spline generation tool.
 
 
-## Call for IDE Profiles Pull Requests
 
-Help your fellow students!
+#Results
+The ego vehicle was able to drive the entire loop successfully at multiple runs. Only one incident happened with the current code and that was due to multiple collisions between other vehicles and the ego vehicle failed to detect those as unsafe condition.
 
-We decided to create Makefiles with cmake to keep this project as platform
-agnostic as possible. Similarly, we omitted IDE profiles in order to ensure
-that students don't feel pressured to use one IDE or another.
+![One Round](https://github.com/ArmanKh9/P1_Path_Plan/images/4.57.png)
 
-However! I'd love to help people get up and running with their IDEs of choice.
-If you've created a profile for an IDE that you think other students would
-appreciate, we'd love to have you add the requisite profile files and
-instructions to ide_profiles/. For example if you wanted to add a VS Code
-profile, you'd add:
+The code was ran for mor than 22 mins and the vehicle seemed to be able to continuously drive without any incident.
 
-* /ide_profiles/vscode/.vscode
-* /ide_profiles/vscode/README.md
+![Three Rounds](https://github.com/ArmanKh9/P1_Path_Plan/images/15.62.png)
 
-The README should explain what the profile does, how to take advantage of it,
-and how to install it.
 
-Frankly, I've never been involved in a project with multiple IDE profiles
-before. I believe the best way to handle this would be to keep them out of the
-repo root to avoid clutter. My expectation is that most profiles will include
-instructions to copy files to a new location to get picked up by the IDE, but
-that's just a guess.
-
-One last note here: regardless of the IDE used, every submitted project must
-still be compilable with cmake and make./
-
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
-
+#Addition Wrok
+The code does too many iteration and data scanning. Efficiency can be improved by combining several sensor fusion data pulling loops. Also, the safe distance for lane change can be defined in a more dynamic fashion to enable the vehicle to perform a lane change with smaller target lane gaps at lower speeds. For example, if speed is 25 mph, the required gap should be 15 meters instead of 30 meters which is required at 50 mph.
+Moreover, collision between other cars can trigger the braking module.
