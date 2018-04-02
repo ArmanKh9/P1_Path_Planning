@@ -242,11 +242,11 @@ The trajectory generation module takes the lane information from the planning mo
 #Results
 The ego vehicle was able to drive the entire loop successfully at multiple runs. Only one incident happened with the current code and that was due to multiple collisions between other vehicles and the ego vehicle failed to detect those as unsafe condition.
 
-![One Round](https://github.com/ArmanKh9/P1_Path_Plan/images/One.png)
+![One Round](https://github.com/ArmanKh9/P1_Path_Planning/blob/master/images/One.png)
 
 The code was ran for mor than 22 mins and the vehicle seemed to be able to continuously drive without any incident.
 
-![Three Rounds](https://github.com/ArmanKh9/P1_Path_Plan/images/Three.png)
+![Three Rounds](https://github.com/ArmanKh9/P1_Path_Planning/blob/master/images/Three.png)
 
 
 #Addition Wrok
